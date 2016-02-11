@@ -15,17 +15,29 @@ class Drone
   end
 
   def find_warehouse(product_id)
-    warehouse = @world.warehouses.find do |warehouse|
+    warehouses = @world.warehouses.select do |warehouse|
       warehouse.remains[product_id] > 0
     end
+
+    distances = warehouses.map do |warehouse|
+      distance(warehouse.row, warehouse.column)
+    end
+
+    index = distances.index(distances.min)
+
+    warehouse = warehouses[index]
 
     warehouse.remains[product_id] -= 1
 
     warehouse
   end
 
+  def distance(r1, c1)
+    Math.sqrt((r1 - @row) ** 2 + (c1 - @column) ** 2).ceil
+  end
+
   def fly_to(r1, c1)
-    @time += Math.sqrt((r1 - @row) ** 2 + (c1 - @column) ** 2).ceil
+    @time += distance(r1, c1)
     @row = r1
     @column = c1
   end
