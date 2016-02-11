@@ -8,6 +8,6 @@ class Order
   end
 
   def line_items=(value)
-    @line_items = value.sort.reverse
+    @line_items = value.sort
   end
 end
