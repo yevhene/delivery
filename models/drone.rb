@@ -20,9 +20,11 @@ class Drone
     @instructions = []
   end
 
-  def find_warehouse(product_id)
+  def find_warehouse(order)
     warehouses = @world.warehouses.select do |warehouse|
-      warehouse.remains[product_id] > 0
+      order.line_items.any? do |line_item|
+        warehouse.remains[line_item] > 0 && can_carry?(line_item)
+      end
     end
 
     distances = warehouses.map do |warehouse|
@@ -57,10 +59,6 @@ class Drone
     @time += 1
   end
 
-  def can_carry?(product_id)
-    (@current_weight + @world.products[product_id]) <= @world.max_drone_load
-  end
-
   def load_all(order, warehouse)
     line_items = order.line_items.clone.reverse
 
@@ -83,10 +81,23 @@ class Drone
     @current_weight = 0
   end
 
+  def can_carry?(product_id)
+    (@current_weight + @world.products[product_id]) <= @world.max_drone_load
+  end
+
+  def can_carry_any?(order)
+    order.line_items.any? do |line_item|
+      can_carry?(line_item)
+    end
+  end
+
   def service(order)
     while order.line_items.length > 0
-      warehouse = find_warehouse(order.line_items.last)
-      load_all(order, warehouse)
+      while can_carry_any?(order)
+        warehouse = find_warehouse(order)
+        load_all(order, warehouse)
+      end
+
       deliver_all(order)
     end
   end
