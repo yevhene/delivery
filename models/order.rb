@@ -6,4 +6,8 @@ class Order
     @row = options[0].to_i
     @column = options[1].to_i
   end
+
+  def line_items=(value)
+    @line_items = value.sort.reverse
+  end
 end
