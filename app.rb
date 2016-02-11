@@ -4,4 +4,19 @@ require_relative 'parser.rb'
 
 WORLD = Parser.new(ARGV[0]).build
 
-puts WORLD.orders[0].line_items[4]
+WORLD.run
+
+name = File.basename(ARGV[0], '.in')
+
+File.open("output/#{name}.out", 'w') do |file|
+  instructions = WORLD.instructions
+  file.write(instructions.length.to_s + "\n")
+
+  instructions.each do |instruction|
+    file.write(instruction + "\n")
+  end
+end
+
+times = WORLD.drones.map(&:time)
+
+puts "[#{times.min}, #{times.max}]"
